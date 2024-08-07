@@ -51,7 +51,7 @@ class BaseUmbrellaSampling:
             simulation_manager.queue_sim(sim, continue_run=continue_run)        
      
              
-    def wham_run(self, wham_dir, xmin, xmax, umbrella_stiff, n_bins, tol, n_boot, all_observables=True):
+    def wham_run(self, wham_dir, xmin, xmax, umbrella_stiff, n_bins, tol, n_boot, all_observables=False):
         """
         Run the weighted histogram analysis technique (Grossfield, Alan http://membrane.urmc.rochester.edu/?page_id=126)
         
@@ -378,7 +378,6 @@ class UmbrellaBuild:
         return None
     
 
-
 class UmbrellaInfoUtils:
     def __init__(self, base_umbrella):
         self.base = base_umbrella
@@ -583,6 +582,7 @@ class UmbrellaProgress:
             except:
                 pass
     
+    
 class UmbrellaObservables:
     def __init__(self, base_umbrella):
         self.base = base_umbrella
@@ -600,110 +600,10 @@ class UmbrellaObservables:
         )  
         self.base.observables_list.append(com_observable)
     
-
     
 class UmbrellaAnalysis:
     def __init__(self, base_umbrella):
         self.base_umbrella = base_umbrella
-        self.base_umbrella.obs_df = None
-    
-
-    def read_all_observables(self, sim_type):
-        file_name = self.base_umbrella.observables_list[0]['output']['name']
-        print_every = int(float(self.base_umbrella.observables_list[0]['output']['print_every']))
-        
-        # Determine the simulation list based on sim_type
-        if sim_type == 'eq':
-            sim_list = self.base_umbrella.equlibration_sims
-        elif sim_type == 'prod':
-            sim_list = self.base_umbrella.production_sims
-        elif sim_type == 'pre_eq':
-            sim_list = self.base_umbrella.pre_equlibration_sims
-
-        # Assuming force_js is accessible and relevant here
-        # with open(sim_list[0].sim_files.force, 'r') as f:
-        #     force_js = load(f)
-        #     number_of_forces = len(force_js.keys())
-        
-        number_of_forces = 0
-        with open(sim_list[0].sim_files.observables, 'r') as f:
-            obs_file = load(f)
-        obs_file_cols = obs_file['output']['cols']
-        for col in obs_file_cols:
-            if 'force_energy' in col['type']:
-                number_of_forces += 1
-        
-        names = ['backbone', 'bonded_excluded_volume', 'stacking', 'nonbonded_excluded_volume', 'hydrogen_bonding', 'cross_stacking', 'coaxial_stacking', 'debye_huckel']
-
-        force_energy = [f'force_energy_{idx}' for idx in range(number_of_forces)]
-        
-        class_name = type(self.base_umbrella).__name__
-        if class_name == 'MeltingUmbrellaSampling':
-            columns = ['com_distance', 'hb_list', *force_energy, 'kinetic_energy', *names]
-        else:
-            columns = ['com_distance', *force_energy, 'kinetic_energy', *names]
-            
-        # Parallel processing using ProcessPoolExecutor
-        # warnings.filterwarnings(
-        # "ignore",
-        # "os.fork\\(\\) was called\\. os\\.fork\\(\\) is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock\\.",
-        # RuntimeWarning
-        # )
-        workers = self.base_umbrella.info_utils.get_number_of_processes()
-        args = [(sim, file_name, number_of_forces, columns, print_every) for sim in sim_list]
-        # print(args)
-        with ProcessPoolExecutor(max_workers=workers) as executor:
-            try:
-                results = list(tqdm(executor.map(self.process_simulation_parallel, args), total=len(args), desc='Reading Observables'))
-            except Exception as e:
-                error_traceback = traceback.format_exc() 
-                print(error_traceback) # Gets the full traceback
-                print(f"An error occurred: {e}")
-                results = []
-
-        # results = []
-        # for arg in args:
-        #     print(f'Processing Simulation: {arg[0].sim_dir}')
-        #     results.append(self.process_simulation(*arg))
-                
-
-        self.base_umbrella.obs_df = results    
-            
-        return self.base_umbrella.obs_df
-
-
-    def process_simulation_parallel(self,args):
-        return self.process_simulation(*args)
-    
-
-    def process_simulation(self, sim, file_name, number_of_forces, columns, print_every):
-        """
-        Standalone function to process a single simulation.
-        """
-        try:
-            observable = pd.read_csv(f"{sim.sim_dir}/{file_name}", header=None, engine='pyarrow')
-        except (FileNotFoundError, pyarrow.lib.ArrowInvalid) as e:
-            print(f'No Data found in all_observables.txt file at:\n {sim.sim_dir}')
-            observable = pd.DataFrame()
-        if not observable.empty:
-            data = [list(filter(lambda a: a != '', row[0].split(' '))) for row in observable.itertuples(index=False)]
-            try:
-                df = pd.DataFrame(data, columns=columns, dtype=np.double)
-            except ValueError:
-                data = data[:-1]
-                df = pd.DataFrame(data, columns=columns, dtype=np.double)
-            df['steps'] = np.arange(len(df)) * print_every
-        else:
-            df = pd.DataFrame(columns=columns + ['steps'])
-        if hasattr(sim.sim_files, 'hb_contacts'):
-            try:
-                sim.sim_files.parse_current_files()
-                hb_contact = pd.read_csv(sim.sim_files.hb_contacts, header=None, engine='pyarrow')
-                df['hb_contact'] = hb_contact
-            except Exception as e:
-                pass
-            
-        return df
     
         
     def view_observable(self, sim_type, idx, sliding_window=False, observable=None):
