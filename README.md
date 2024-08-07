@@ -58,11 +58,8 @@ Install the Weight Histogram Analysis Technique (http://membrane.urmc.rochester.
 ## Example Notebooks
 This repository includes a number of example notebooks that demonstrate how to use the code to perform oxDNA umbrella sampling simulations. These notebooks can be used as a starting point for your own simulations.
 
-`/examples/tutorials/origami_tile_N_nt_overhangs_gpu`
+`/example/origami_tile_N_nt_overhangs_gpu`
 - Umbrella sampling of the no overhang, 9nt overhangs, and 20nt overhang extension twist-corrected rectangular DNA origami
-
-`./examples/tutorials/8_nt_duplex_melting_cpu`
-- Example of using umbrella sampling for duplex melting
 
 ## Contributing
 If you would like to contribute to this project, please fork the repository and submit a pull request.
