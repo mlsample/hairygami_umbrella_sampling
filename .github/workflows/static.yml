@@ -24,7 +24,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     container:
-      image: mlsample/ipy_oxdna:v0.2 # Using your Docker image
+      image: mlsample/hairygamiumbrellasampling:latest # Using your Docker image
 
     steps:
       - name: Checkout
