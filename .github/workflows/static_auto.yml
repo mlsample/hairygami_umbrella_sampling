@@ -28,15 +28,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    container:
-      image: mlsample/hairygamiumbrellasampling:latest # Using your Docker image
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Build Sphinx documentation
-        run: |
-          cd docs # Change to your documentation directory if needed
-          make html
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
