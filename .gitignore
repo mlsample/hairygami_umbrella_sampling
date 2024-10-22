@@ -9,6 +9,6 @@ build
 ipy_oxdna.egg-info
 wham
 
-/docs/_build
-/docs/_static
-/docs/_templates
+# /docs/_build
+# /docs/_static
+# /docs/_templates
