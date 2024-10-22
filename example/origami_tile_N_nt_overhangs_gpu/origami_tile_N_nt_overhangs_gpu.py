@@ -33,15 +33,14 @@ ref_lists = ['3541,3352,3353,3354,3355,3356,3357,3358,3359,3360,3361,3362,3363,3
              '3559,3535,3536,3537,3538,3539,3540,3541,3542,3543,3544,3545,3546,3547,3548,3549,3550,3551,3552,3553,3554,3555,3556,3557,3558,3509,3510,3511,3512,3513,3514,3515,3516,3517,3518,3519,3520,3521,3522,3523,3524,3525,3526,3527,3528,3529,3530,3531,3532,3533,3534,3497,3498,3499,3500,3501,3502,3503,3504,3505,3506,3507,3508,3482,3483,3484,3485,3486,3487,3488,3489,3490,3491,3492,3493,3494,3495,3496,3470,3471,3472,3473,3474,3475,3476,3477,3478,3479,3480,3481,3449,3450,3451,3452,3453,3454,3455,3456,3457,3458,3459,3460,3461,3462,3463,3464,3465,3466,3467,3468,3469,3420,3421,3422,3423,3424,3425,3426,3427,3428,3429,3430,3431,3432,3433,3434,3435,3436,3437,3438,3439,3440,3441,3442,3443,3444,3445,3446,3447,3448,3370,3371,3372,3373,3374,3375,3376,3377,3378,3379,3380,3381,3382,3383,3384,3385,3386,3387,3388,3389,3390,3391,3392,3393,3394,3395,3396,3397,3398,3399,3400,3401,3402,3403,3404,3405,3406,3407,3408,3409,3410,3411,3412,3413,3414,3415,3416,3417,3418,3419',
              '3581,3542,3543,3544,3545,3546,3547,3548,3549,3550,3551,3552,3553,3554,3555,3556,3557,3558,3559,3560,3561,3562,3563,3564,3565,3566,3567,3568,3569,3570,3571,3572,3573,3574,3575,3576,3577,3578,3579,3580,3519,3520,3521,3522,3523,3524,3525,3526,3527,3528,3529,3530,3531,3532,3533,3534,3535,3536,3537,3538,3539,3540,3541,3493,3494,3495,3496,3497,3498,3499,3500,3501,3502,3503,3504,3505,3506,3507,3508,3509,3510,3511,3512,3513,3514,3515,3516,3517,3518,3431,3432,3433,3434,3435,3436,3437,3438,3439,3440,3441,3442,3443,3444,3445,3446,3447,3448,3449,3450,3451,3452,3453,3454,3455,3456,3457,3458,3459,3460,3461,3462,3463,3464,3465,3466,3467,3468,3469,3470,3471,3472,3473,3474,3475,3476,3477,3478,3479,3480,3481,3482,3483,3484,3485,3486,3487,3488,3489,3490,3491,3492,3392,3393,3394,3395,3396,3397,3398,3399,3400,3401,3402,3403,3404,3405,3406,3407,3408,3409,3410,3411,3412,3413,3414,3415,3416,3417,3418,3419,3420,3421,3422,3423,3424,3425,3426,3427,3428,3429,3430'
             ]
+
+
 starting_r0 = [67, 51, 29] # Starting distance between nucleotides in sim_units (only used in pre_equlibration)
-
-
-  
 temperature = "20C" # Temperature of the simulation
 stiff = 0.2 # Stiffness of the COM harmonic bias potential
 xmin = 0 # Minimum distance between nucleotides the simulations will attempt to pull the OP in sim_units
 xmax = 72.787 # maximum distance between nucleotides the simulations will attempt to pull the OP in sim_units
-n_windows = 8 # Number of simulation windows/replicas **Windows have to overlap for WHAM to work**
+n_windows = 100 # Number of simulation windows/replicas **Windows have to overlap for WHAM to work**
 print_every = 1e4 # Frequecny of printing the CVs to file
 
 # Number of simulation steps to run for each window
@@ -63,8 +62,6 @@ us_list = [ComUmbrellaSampling(file_dir, sys, clean_build=True) for file_dir, sy
 
 simulation_manager = SimulationManager()
 
-
-
 #######################################################
 ########### Pre-Equlibration / pulling ################
 #######################################################
@@ -77,9 +74,7 @@ for us, com_list, ref_list, start_r0 in zip(us_list, com_lists, ref_lists, start
         print_every=print_every, observable=True, protein=None,
         force_file=None, sequence_dependant=False, continue_run=False)
     
-    
 simulation_manager.run(join=True) #set join to True if you want to run blocking simulations
-
 
 #######################################################
 ################## Equlibration #######################
@@ -91,3 +86,47 @@ for us, com_list, ref_list in zip(us_list, com_lists, ref_lists):
         stiff, xmin, xmax, equlibration_parameters,
         print_every=print_every, observable=True, protein=None,
         force_file=None, sequence_dependant=False, continue_run=False)
+
+simulation_manager.run(join=True)   
+    
+#######################################################
+################## Production #########################
+#######################################################
+    
+for us, com_list, ref_list in zip(us_list, com_lists, ref_lists):
+    us.build_production_runs(
+        simulation_manager, n_windows, com_list, ref_list,
+        stiff, xmin, xmax, production_parameters,
+        observable=True, print_every=print_every, protein=None,
+        force_file=None, sequence_dependant=False, continue_run=False)
+
+simulation_manager.run(join=True)  
+   
+#######################################################
+################## WHAM #########################
+#######################################################
+    
+wham_dir = os.path.abspath('../../ipy_oxDNA/wham/wham')
+
+n_bins = '200'
+tol = '1e-7'
+n_boot = '100'
+
+for us in us_list:
+    us.wham_run(wham_dir, xmin, xmax, stiff, n_bins, tol, n_boot)
+    
+    
+n_chunks = 2
+data_added_per_iteration = 3
+
+wham_dir = os.path.abspath('/scratch/matthew/ipy_oxDNA/wham/wham')
+n_bins = '200'
+tol = '1e-5'
+n_boot = '0'
+stiff = 0.2
+xmin = 0
+xmax = 72.787
+
+for us in us_list:
+    us.wham.get_n_data_per_com_file()
+    us.wham.convergence_analysis(n_chunks, data_added_per_iteration, wham_dir, xmin, xmax, stiff, n_bins, tol, n_boot)

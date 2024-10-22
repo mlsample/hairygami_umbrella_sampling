@@ -154,7 +154,11 @@ class Simulation:
         self.slurm_run = SlurmRun(self.sim_dir, run_file, job_name)
 
     def make_sequence_dependant(self):
-        """ Add a sequence dependant file to simulation directory and modify input file to use it."""
+        """ Add a sequence dependant file to simulation directory and modify input file to use it.
+        
+        Parameters:
+            None
+        """
         self.sequence_dependant.make_sim_sequence_dependant()
 
 

@@ -2,7 +2,13 @@
 /example/origami_tile_N_nt_overhangs_gpu/t9/t9_k02
 /example/origami_tile_N_nt_overhangs_gpu/t20/t20_k02
 
+/.vscode
+
 build
 *__pycache__
 ipy_oxdna.egg-info
 wham
+
+/docs/_build
+/docs/_static
+/docs/_templates

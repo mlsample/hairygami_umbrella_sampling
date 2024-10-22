@@ -528,6 +528,7 @@ class UmbrellaProgress:
     
     def read_wham_progress(self):          
         if exists(join(self.base.system_dir, 'production', 'com_dir', 'freefile')):
+            self.base.info_utils.get_temperature()
             self.base.com_dir = join(self.base.system_dir, 'production', 'com_dir')
             with open(join(self.base.production_sim_dir, 'com_dir', 'freefile'), 'r') as f:
                 file = f.readlines()

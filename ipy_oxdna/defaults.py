@@ -46,7 +46,8 @@ class DefaultInput:
             "max_io": "5",
             "external_forces": "0",
             "external_forces_file": "forces.json",
-            "external_forces_as_JSON": "true"
+            "external_forces_as_JSON": "true",
+            'log_file': 'log.txt'
         }
     
     def cpu_MD(self):
