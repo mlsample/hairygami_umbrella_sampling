@@ -5,7 +5,7 @@
 
 This repository contains Python code for running oxDNA umbrella sampling and large throughput simulations. This code is complementary to the article:
 
-Sample, Matthew, Michael Matthies, and Petr Šulc. "Hairygami: Analysis of DNA Nanostructure's Conformational Change Driven by Functionalizable Overhangs." arXiv preprint arXiv:2302.09109 (2023).
+Sample, Matthew, et al. "Hairygami: Analysis of DNA Nanostructures’ Conformational Change Driven by Functionalizable Overhangs." ACS nano 18.43 (2024): 30004-30016.
 
 Within the `examples/tutorials` folder exist Jupyter notebook tutorials and examples. The full documentation can be found here:[(https://mlsample.github.io/ipy_oxDNA/index.html)](https://mlsample.github.io/hairygami_umbrella_sampling/).
 
