@@ -67,4 +67,4 @@ If you would like to contribute to this project, please fork the repository and 
 ## Citation
 If you find this code useful in your research, please cite the accompanying academic article:
 
-Sample, Matthew, Michael Matthies, and Petr Šulc. “Hairygami: Analysis of DNA Nanostructure’s Conformational Change Driven by Functionalizable Overhangs.” arXiv preprint arXiv:2302.09109 (2023).
+Sample, Matthew, et al. "Hairygami: Analysis of DNA Nanostructures’ Conformational Change Driven by Functionalizable Overhangs." ACS nano 18.43 (2024): 30004-30016.
